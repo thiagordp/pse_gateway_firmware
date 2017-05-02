@@ -1,25 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* 
- * File:   arduino_at.h
- * Author: thiagordp
- *
- * Created on 18 de Abril de 2017, 16:39
- */
-
 #ifndef SERIAL_PSE_H
 #define SERIAL_PSE_H
 
 
 #include <stdint.h>
 
-#define EPOS    (0)
-#define ARDUINO (1)
-#define SELECAO EPOS
+//Alterar de acordo com o uso
+#define EPOS    (1)
+#define ARDUINO (0)
 
 
 class SerialPse {
