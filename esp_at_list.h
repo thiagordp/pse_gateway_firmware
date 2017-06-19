@@ -35,6 +35,7 @@
 #define AT_OK					"OK"
 #define AT_ERROR				"ERROR"
 #define AT_BUSY					"busy"
+#define AT_UNKNOWN_ID			(0xFF)
 
 #endif /* AT_CMD_LIST_H */
 

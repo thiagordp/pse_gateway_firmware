@@ -25,7 +25,9 @@ public:
 
 	char* getNetworks();
 
-	void openConnection(uint8_t id, char *type, char *ip, char *port);
+	int8_t openConnection(char *type, char *ip, uint16_t port);
+
+	int8_t openConnection(uint8_t id, char *type, char *ip, uint16_t port);
 
 	int8_t closeConnection(void);
 
@@ -35,7 +37,7 @@ public:
 
 	void reset(void);
 
-	void sendData(char *buf, uint64_t length);
+	void sendData(char *buf, uint64_t length, char* response);
 
 	void setupMode(uint8_t mode);
 
@@ -46,7 +48,7 @@ public:
 	void setupMuxConnection(uint8_t cipmux);
 
 private:
-
+	SerialRS232 serial;
 	uint8_t cipmux = 0;
 	uint8_t cwmode = 0;
 

@@ -7,6 +7,7 @@
 
 #include "esp_at_list.h"
 #include <stdlib.h>
+
 #include <string.h>
 #include "ESP8266.h"
 
@@ -18,7 +19,7 @@
 
 #endif
 
-SerialRS232 serial;
+//SerialRS232 serial;
 
 ESP8266::ESP8266()
 {
@@ -52,35 +53,38 @@ int8_t ESP8266::getStatus()
 // TODO: testar
 char* ESP8266::getIp()
 {
-	char *buf = (char*) calloc(300, sizeof(char));
+	char *buf = (char*) calloc(150, sizeof(char));
 	char *ip = (char*) calloc(15, sizeof(char));
 
 	strcpy(buf, AT_GET_IP);
 	strcat(buf, AT_CMD_FINISH_STRING);
 
+	serial.flush();
 	serial.send(buf, strlen(buf));
-	clearBuffer(buf, 300);
-	serial.receive(buf, 300);
+	clearBuffer(buf, 150);
+	serial.flush();
+	serial.receive(buf, 150);
 
 	char *pattern = "+CIFSR:STAIP,\"";
 
 	char *tmp = strstr(buf, pattern) + strlen(pattern);
-
-	for (int i = 0; *tmp != '\"'; i++, tmp++)
+	int i;
+	for (i = 0; *tmp != '\"'; i++, tmp++)
 	{
 		ip[i] = *tmp;
 	}
+
+	ip[i] = '\0';
 
 	free(buf);
 	return ip;
 }
 
-// TODO: testar
 int8_t ESP8266::connectNetwork(char *ssid, char *password)
 {
 	// Formato: AT+CWJAP="ssid","password"\r\n
-	char *cmd = (char*) calloc(300, sizeof(char));
-
+	char cmd[300];
+	clearBuffer(cmd, 300);
 	strcpy(cmd, AT_CONNECT_NETWORK);
 	strcat(cmd, "=\"");
 	strcat(cmd, ssid);
@@ -88,18 +92,20 @@ int8_t ESP8266::connectNetwork(char *ssid, char *password)
 	strcat(cmd, password);
 	strcat(cmd, "\"");
 	strcat(cmd, AT_CMD_FINISH_STRING);
-	Serial.println(cmd);
+
 	serial.flush();
 	serial.send(cmd, strlen(cmd));
 
-	delay_ms(10000);
+#if ARDUINO
+	delay(2000);
+#else
+	Alarm::delay(2000);
+#endif
 
-	Serial.println(serial.receive(cmd, 300));
-	Serial.println(cmd);
+	clearBuffer(cmd, 300);
+	serial.receive(cmd, 300);
 
-	free(cmd);
-
-	if (strstr(cmd, "OK"))
+	if (strstr(cmd, "OK") != NULL || strstr(cmd, "CONNECTED") != NULL)
 	{
 		return 1;
 	}
@@ -113,10 +119,9 @@ int8_t ESP8266::connectNetwork(char *ssid, char *password)
 	}
 }
 
-// TODO: testar
 char* ESP8266::getNetworks()
 {
-	char *buf = (char*) calloc(1000, sizeof(char));
+	char buf[500];
 
 	strcpy(buf, AT_LIST_NETWORKS);
 	strcat(buf, AT_CMD_FINISH_STRING);
@@ -124,17 +129,21 @@ char* ESP8266::getNetworks()
 	serial.flush();
 	serial.send(buf, strlen(buf));
 	strcpy(buf, "");
-	serial.receive(buf, 1000);
+	serial.receive(buf, 500);
 	serial.flush();
 
 	return buf;
 }
 
-// TODO: testar
-void ESP8266::openConnection(uint8_t id, char *type, char *ip, char *port)
+int8_t ESP8266::openConnection(char *type, char *ip, uint16_t port)
 {
-	char *buf = (char*) calloc(1000, sizeof(char));
+	return openConnection(0, type, ip, port);
+}
 
+int8_t ESP8266::openConnection(uint8_t id, char *type, char *ip, uint16_t port)
+{
+	char buf[100];
+	clearBuffer(buf, 100);
 	strcpy(buf, AT_OPEN_CONNECTION);
 	strcat(buf, "=");
 
@@ -145,7 +154,7 @@ void ESP8266::openConnection(uint8_t id, char *type, char *ip, char *port)
 		strcat(buf, tmp);
 		strcat(buf, ",");
 	}
-
+	strcat(buf, "\"");
 	if (strcmp(type, AT_CONNECT_TCP) == 0)
 	{
 		strcat(buf, AT_CONNECT_TCP);
@@ -161,28 +170,38 @@ void ESP8266::openConnection(uint8_t id, char *type, char *ip, char *port)
 #endif
 	}
 
-	strcat(buf, "\"");
-	strcat(buf, ip);
 	strcat(buf, "\",\"");
-	strcat(buf, port);
-	strcat(buf, "\"");
+	strcat(buf, ip);
+	strcat(buf, "\",");
+	char buftmp[6];
+	sprintf(buftmp, "%d", port);
+	strcat(buf, buftmp);
 
 	strcat(buf, AT_CMD_FINISH_STRING);
+	delay(1);
 
 	serial.flush();
-	serial.send(buf, strlen(buf));
-	strcpy(buf, "");
-	serial.receive(buf, 1000);
 
-	/***
-	 * TODO: FAZER VERIFICAÇÕES DA RESPOSTA: ok, ERROR, ALREADY CONNECT
-	 */
+	serial.send(buf, strlen(buf));
+	clearBuffer(buf, 100);
+	serial.receive(buf, 100);
+
+	if (findStrInBuffer(buf, "OK"))
+	{
+		return 1;
+	}
+	else if (findStrInBuffer(buf, "ERROR"))
+	{
+		return 0;
+	}
+
+	return -1;
 }
 
-// TODO: testar
 int8_t ESP8266::closeConnection(uint8_t id)
 {
-	char *buf = (char*) calloc(1000, sizeof(char));
+	char buf[200];
+	clearBuffer(buf, 200);
 
 	strcpy(buf, AT_CLOSE);
 
@@ -194,18 +213,21 @@ int8_t ESP8266::closeConnection(uint8_t id)
 	}
 
 	strcat(buf, AT_CMD_FINISH_STRING);
-
 	serial.flush();
 	serial.send(buf, strlen(buf));
 	strcpy(buf, "");
-	serial.receive(buf, 1000);
+	serial.receive(buf, 200);
 
-	return 1;
+	if (findStrInBuffer(buf, "CLOSED") == 0)
+		return 1;
+
+	return 0;
 }
 
 int8_t ESP8266::closeConnection(void)
 {
-	char *buf = (char*) calloc(1000, sizeof(char));
+	char buf[100];
+	clearBuffer(buf, 100);
 
 	strcpy(buf, AT_CLOSE);
 	strcat(buf, AT_CMD_FINISH_STRING);
@@ -215,7 +237,10 @@ int8_t ESP8266::closeConnection(void)
 	strcpy(buf, "");
 	serial.receive(buf, 1000);
 
-	return 1;
+	if (findStrInBuffer(buf, "CLOSED") == 0)
+		return 1;
+
+	return 0;
 }
 
 void ESP8266::receiveRequest()
@@ -239,29 +264,98 @@ void ESP8266::reset()
 	free(buf);
 }
 
-void ESP8266::sendData(char *buf, uint64_t length)
+void ESP8266::sendData(char *buf, uint64_t length, char* response)
+{
+	char cmd[350];
+
+	strcpy(cmd, AT_SEND_DATA); // copia o comando
+	strcat(cmd, "=");			// concatena '='
+	char tmp[5];
+
+	sprintf(tmp, "%lu", length);
+	strcat(cmd, tmp);			// concatena o comprimento dos dados
+	strcat(cmd, AT_CMD_FINISH_STRING);
+	serial.flush();
+	serial.send(cmd, strlen(cmd));
+	clearBuffer(cmd, 350);
+	//delay(1000);
+
+	//for (int i = 0; i < 5; i++)
+	//{
+	delay(100);
+	serial.receive(cmd, 350);
+
+	if (findStrInBuffer(cmd, ">") == 1)
+	{
+		delay(100);
+		clearBuffer(cmd, 350);
+		serial.flush();
+		serial.send(buf, length);
+	}
+	delay(100);
+
+	clearBuffer(cmd, 350);
+	serial.receive(cmd, 350);
+
+	strcpy(response, cmd);
+	//TODO: Rever os próximos passos a serem realizados casos seja enviado com sucesso ou não
+}
+
+void ESP8266::setupMode(uint8_t mode)
 {
 	char *cmd = (char*) calloc(10, sizeof(char));
 
-	strcpy(cmd, AT_SEND_DATA); // copia o comando
-	strcpy(cmd, "=");			// concatena '='
+	strcpy(cmd, AT_MODE); // copia o comando
+	strcat(cmd, "=");			// concatena '='
 	char tmp[5];
 
-	sprintf(tmp, "%llu", length);
+	sprintf(tmp, "%u", mode);
 
-	strcpy(cmd, tmp);			// concatena o comprimento dos dados
+	strcat(cmd, tmp);			// concatena o comprimento dos dados
 
+	serial.flush();
 	serial.send(cmd, strlen(cmd));
 	free(cmd);
 
 	cmd = (char*) calloc(10, sizeof(char));
 
+	cwmode = mode;
+	delay(500);
 	serial.receive(cmd, 10);
+	free(cmd);
+}
 
-	if (strstr(cmd, ">") != NULL)
-	{
-		serial.send(buf, length);
-	}
+void ESP8266::enableServer(uint16_t port)
+{
 
-	//TODO: Rever os próximos passos a serem realizados casos seja enviado com sucesso ou não
+}
+
+void ESP8266::disableServer()
+{
+
+}
+
+void ESP8266::setupMuxConnection(uint8_t cipmux)
+{
+	char *cmd = (char*) calloc(10, sizeof(char));
+
+	strcpy(cmd, AT_MULTI_CONN); // copia o comando
+	strcat(cmd, "=");			// concatena '='
+	char tmp[5];
+
+	sprintf(tmp, "%u", cipmux);
+
+	strcat(cmd, tmp);			// concatena o comprimento dos dados
+	strcat(cmd, AT_CMD_FINISH_STRING);
+
+	serial.send(cmd, strlen(cmd));
+	free(cmd);
+
+	this->cipmux = cipmux;
+
+	cmd = (char*) calloc(30, sizeof(char));
+
+	serial.receive(cmd, 30);
+
+	free(cmd);
 }

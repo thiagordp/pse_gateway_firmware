@@ -24,8 +24,7 @@ public:
 	/**
 	 *
 	 */
-	int8_t configure(uint32_t baude_rate, uint32_t data_bits, uint32_t parity,
-			uint32_t stop_bits);
+	int8_t configure(uint32_t baude_rate, uint32_t data_bits, uint32_t parity, uint32_t stop_bits);
 
 	/**
 	 * Envia o comando especificado de acordo com o padrão RS232 do EPOS
