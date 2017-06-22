@@ -11,7 +11,7 @@
 #define PARITY_EVEN     (0b10)
 #define PARITY_ODD      (0b11)
 #define PARITY_NONE     (0b00)
-#define SERIAL_TIMEOUT	(5000)
+#define SERIAL_TIMEOUT	(100)
 
 #endif
 

@@ -64,7 +64,7 @@ void Wifi::httpGetRequest(char *host, uint16_t port, char *service, char *json, 
 	esp8266.closeConnection();
 }
 
-int8_t Wifi::httpPostRequest(char *host, uint16_t port, char *service, char *json)
+int8_t Wifi::httpPostRequest(char *host, uint16_t port, char *service, char *json, char* response)
 {
 	char buf[400];
 	//char str[100];
@@ -84,21 +84,30 @@ int8_t Wifi::httpPostRequest(char *host, uint16_t port, char *service, char *jso
 	strcat(buf, tmp);
 	strcat(buf, "\r\n");
 	strcat(buf, "Content-Type: application/json\r\n");
-	strcat(buf, json);
+	strcat(buf, "Content-Length: ");
+	sprintf(tmp, "%d", strlen(json));
+	strcat(buf, tmp);
 	strcat(buf, "\r\n\r\n");
+	strcat(buf, json);
+	strcat(buf, "\r\n");
 
 	esp8266.openConnection(0, "TCP", host, port);
-	delay(100);
-
 	esp8266.sendData(buf, strlen(buf), buf);
 
-	if (findStrInBuffer(buf, "SEND OK"))
-		return 1;
-	else
+	if (findStrInBuffer(buf, "SEND OK") == 0)
 		return 0;
+	// Extrair o conteúdo
+	char *p = strstr(buf, "+IPD,");
+	char *q = strstr(p + 1, "+IPD,") + 5;
 
-	delay(500);
+	strtok(q, ":");
+	p = strtok(NULL, "");
+
+	sprintf(response, p);
 
 	esp8266.closeConnection();
+
+
+	return 1;
 }
 

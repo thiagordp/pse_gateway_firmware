@@ -27,7 +27,7 @@ public:
 	/**
 	 *  Requisição POST ao servidor.
 	 */
-	int8_t httpPostRequest(char *host, uint16_t port, char *service, char *json);
+	int8_t httpPostRequest(char *host, uint16_t port, char *service, char *json, char* response);
 
 	/**
 	 * Conectar à uma rede Wifi.

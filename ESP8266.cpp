@@ -96,11 +96,7 @@ int8_t ESP8266::connectNetwork(char *ssid, char *password)
 	serial.flush();
 	serial.send(cmd, strlen(cmd));
 
-#if ARDUINO
-	delay(2000);
-#else
-	Alarm::delay(2000);
-#endif
+	delay(5000);
 
 	clearBuffer(cmd, 300);
 	serial.receive(cmd, 300);
@@ -178,7 +174,6 @@ int8_t ESP8266::openConnection(uint8_t id, char *type, char *ip, uint16_t port)
 	strcat(buf, buftmp);
 
 	strcat(buf, AT_CMD_FINISH_STRING);
-	delay(1);
 
 	serial.flush();
 
@@ -278,27 +273,19 @@ void ESP8266::sendData(char *buf, uint64_t length, char* response)
 	serial.flush();
 	serial.send(cmd, strlen(cmd));
 	clearBuffer(cmd, 350);
-	//delay(1000);
-
-	//for (int i = 0; i < 5; i++)
-	//{
-	delay(100);
 	serial.receive(cmd, 350);
 
 	if (findStrInBuffer(cmd, ">") == 1)
 	{
-		delay(100);
 		clearBuffer(cmd, 350);
+
 		serial.flush();
 		serial.send(buf, length);
+		clearBuffer(cmd, 350);
+		serial.receive(cmd, 350);
+
+		strcpy(response, cmd);
 	}
-	delay(100);
-
-	clearBuffer(cmd, 350);
-	serial.receive(cmd, 350);
-
-	strcpy(response, cmd);
-	//TODO: Rever os próximos passos a serem realizados casos seja enviado com sucesso ou não
 }
 
 void ESP8266::setupMode(uint8_t mode)
