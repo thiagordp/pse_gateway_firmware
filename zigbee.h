@@ -7,7 +7,7 @@ using namespace EPOS;
 typedef IEEE802_15_4::Frame Frame;
 typedef IEEE802_15_4::Short_Address ShortAddress;
 
-UART uart1(1, 9600, 8, 0, 1);
+UART uart1(0, 9600, 8, 0, 1);
 
 class Dispositive
 {
@@ -40,7 +40,21 @@ public:
     {
         if (p == this->protocol)
         {
-            this->frame[end] = b->frame();
+            {
+                Frame* f = b->frame();
+                auto d = f->data<char>();
+                char a = 'a' + d[1];
+                uart1.put(a);
+                uart1.put('\n'); 
+            }
+
+            Frame* f = new Frame( *(b->frame()) );
+            *f = *(b->frame());
+
+            if (this->frame[end] != (Frame*)0)
+                delete(this->frame[end]);
+
+            this->frame[end] = f;
 
             if (this->end == 15 && this->begin == 0)
                 this->begin = 1;
@@ -48,6 +62,8 @@ public:
                 this->begin = (this->begin + 1) % 16;
 
             this->end = (this->end + 1) % 16;
+
+            nic->free(b);
             //auto d = f->data<data_type>();
         }   
     }
@@ -92,6 +108,11 @@ public:
     {
         this->nic->send(pAddress, NIC::ELP, pPayload, pSize);
     }
+
+    void SendPacketBroadcast(char* pPayload, unsigned char pSize)
+    {
+        this->nic->send(nic->broadcast(), NIC::ELP, pPayload, pSize);
+    }    
 
 private:
     Receiver* receiver;
