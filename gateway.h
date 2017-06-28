@@ -139,12 +139,25 @@ public:
 
 	void TreatWiFi()
 	{
-
+	wifi.receiveRequest();
 	}
 
 	void SendPicture()
 	{
+		char response[100];
+		char content_request[500];
 
+		strcpy(content_request, "");
+
+		/**
+		 * Montagem da URL
+		 */
+		/**
+
+		 ----borda\r\nContent-Disposition: form-data; name=\"camera_id\"\r\n\r\n123\r\n----borda\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\ncamera123\r\n----borda\r\n");
+		 */
+
+		wifi.httpPostRequest2(host, port, "/send-image", content_request, response);
 	}
 
 	void UpdateStatus(char pType, char pId, char pStatus)
@@ -158,7 +171,10 @@ public:
 	}
 
 private:
+	char *host = "192.168.1.14";
+	uint32_t port = 8000;
 	ZigBee zigbee;
+	Wifi wifi;
 	Dispositive* dispositives[4];
 	char photo[14400];
 	unsigned char bytesPhoto;
