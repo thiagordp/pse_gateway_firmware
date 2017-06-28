@@ -168,29 +168,32 @@ public:
 		//strcat(buf, json);
 		//strcat(buf, "\r\n");
 		//return 1;
-		//Serial.println((esp8266.openConnection(0, "TCP", host, port)));
-		esp8266.sendData(buf, strlen(buf), buf);
+		if (esp8266.openConnection(0, "TCP", host, port))
+		{
+			esp8266.sendData(buf, strlen(buf), buf);
 
-		if (findStrInBuffer(buf, "SEND OK") == 0)
-			return 0;
-		// Extrair o conteúdo
-		char *p = strstr(buf, "+IPD,");
-		char *q = strstr(p + 1, "+IPD,") + 5;
+			if (findStrInBuffer(buf, "SEND OK") == 0)
+				return RESPONSE_ERROR;
+			// Extrair o conteúdo
+			char *p = strstr(buf, "+IPD,");
+			char *q = strstr(p + 1, "+IPD,") + 5;
 
-		strtok(q, ":");
-		p = strtok(NULL, "");
+			strtok(q, ":");
+			p = strtok(NULL, "");
 
-		sprintf(response, p);
+			sprintf(response, p);
 
-		esp8266.closeConnection();
+			esp8266.closeConnection();
 
-		return 1;
+			return RESPONSE_OK;
+		}
+		return RESPONSE_ERROR;
 	}
 
 	int8_t receiveRequest()
 	{
 		esp8266.receiveRequest();
-		return 1;
+		return RESPONSE_OK;
 	}
 
 private:
