@@ -48,6 +48,8 @@ public:
                 uart1.put('\n'); 
             }
 
+            //Isso é feito pois o buffer é deletado, 
+            //e o frame seria deletado junto
             Frame* f = new Frame( *(b->frame()) );
             *f = *(b->frame());
 
@@ -70,6 +72,7 @@ public:
 
     Frame* GetPacket()
     {
+        //Lista circular
         if (this->begin != this->end)
         {
             Frame* f = this->frame[begin];

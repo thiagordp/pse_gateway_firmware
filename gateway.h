@@ -36,6 +36,7 @@ public:
                     }
                     else
                     {
+                    	//Salvando o dispositivo, d[1] = ID
                         dispositives[0] = new Dispositive(ID_TYPE_ULTRASSOM, d[1], f->src());
                         AddDevice(ID_TYPE_ULTRASSOM, d[1]);
                     }
@@ -46,10 +47,12 @@ public:
 
                     if (id == ID_TYPE_ATUADOR)
                     {
+                    	//Atualizando status no servidor
                         UpdateStatus(ID_TYPE_ATUADOR, dispositives[ID_TYPE_ATUADOR]->id, d[2]);
                     }
                     else
                     {
+                    	//Salvando o dispositivo, d[1] = ID
                         dispositives[1] = new Dispositive(ID_TYPE_ATUADOR, d[1], f->src());
                         AddDevice(ID_TYPE_ATUADOR, d[1]);
                     }
@@ -67,6 +70,7 @@ public:
                     }
                     else
                     {
+                    	//Salvando o dispositivo, d[1] = ID
                         dispositives[2] = new Dispositive(ID_TYPE_FUMACA, d[1], f->src());
                         AddDevice(ID_TYPE_FUMACA, d[1]);
                     }
@@ -74,9 +78,11 @@ public:
                 break;
 
                 case ID_TYPE_CAMERA:
+                	//d[0] | d[1] |...| d[5]
                     //ID_TYPE_CAMERA | ID | SEQ | TOTAL |NUM_BYTES | DATA
                     if (id == ID_TYPE_CAMERA)
                     {
+                    	//Preenchendo vetor de bytes da foto
                         for(unsigned int i = 0; i < (unsigned int)d[4]; i++)
                         	photo[d[2] * bytesPhoto + i] = d[5 + i];
 
@@ -87,6 +93,7 @@ public:
                     }
                     else
                     {
+                    	//Salvando o dispositivo, d[1] = ID
                         dispositives[3] = new Dispositive(ID_TYPE_CAMERA, d[1], f->src());
                         AddDevice(ID_TYPE_CAMERA, d[1]);
                     }
