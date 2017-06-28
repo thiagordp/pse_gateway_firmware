@@ -2,7 +2,6 @@
 #define UTIL_H_PSE
 
 #include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 #include "response_defines.h"
 #include "esp_at_list.h"
@@ -17,10 +16,7 @@ int8_t findStrInBuffer(char *buf, char *str)
 	{
 		return 1;
 	}
-	else
-	{
-		return 0;
-	}
+	return 0;
 }
 
 /**

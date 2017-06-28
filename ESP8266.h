@@ -8,8 +8,10 @@
 #ifndef ESP8266_H_
 #define ESP8266_H_
 
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <alarm.h> 
 
 #include "util_gateway.h"
 #include "SerialRS232.h"
@@ -21,12 +23,16 @@
 //TODO: Inclusão da biblioteca de delay do EPOS
 #endif
 
+using namespace EPOS;
+
 class ESP8266
 {
 public:
 
 	ESP8266()
 	{
+		cipmux = 0;
+		cwmode = 0;
 		serial.configure(9600, 8, 0, 2);
 	}
 
@@ -39,6 +45,8 @@ public:
 	{
 		char *buf = (char*) calloc(150, sizeof(char));
 		char *ip = (char*) calloc(15, sizeof(char));
+		//char *buf = new char[150];
+		//char *ip = new char[15];
 
 		strcpy(buf, AT_GET_IP);
 		strcat(buf, AT_CMD_FINISH_STRING);
@@ -60,7 +68,7 @@ public:
 
 		ip[i] = '\0';
 
-		free(buf);
+		delete(buf);
 		return ip;
 	}
 
@@ -99,8 +107,7 @@ public:
 		serial.flush();
 		serial.send(cmd);
 
-		delay(7000);
-
+		Alarm::delay(7000000);
 		clearBuffer(cmd, 300);
 		serial.receive(cmd, 300);
 
@@ -312,7 +319,7 @@ public:
 		cmd = (char*) calloc(10, sizeof(char));
 
 		cwmode = mode;
-		delay(500);
+		Alarm::delay(500000);
 		serial.receive(cmd, 10);
 		free(cmd);
 	}
@@ -354,8 +361,8 @@ public:
 
 private:
 	SerialRS232 serial;
-	uint8_t cipmux = 0;
-	uint8_t cwmode = 0;
+	uint8_t cipmux;
+	uint8_t cwmode;
 
 };
 

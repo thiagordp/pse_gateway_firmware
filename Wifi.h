@@ -11,7 +11,10 @@
 #include "ESP8266.h"
 #include "util_gateway.h"
 #include <string.h>
-// Include EPOS para delay
+#include <stdio.h>
+#include <alarm.h> // Include EPOS para delay
+
+using namespace EPOS;
 
 class Wifi
 {
@@ -53,7 +56,7 @@ public:
 		strcat(buf, "\r\n\r\n");
 
 		esp8266.openConnection("TCP", host, port);
-		delay(1000);
+		Alarm::delay(1000000);
 		esp8266.sendData(buf, strlen(buf), buf);
 
 		// Extrair o conteúdo
@@ -64,7 +67,7 @@ public:
 		p = strtok(NULL, "");
 		sprintf(response, p);
 
-		delay(500);
+		Alarm::delay(500000);
 
 		esp8266.closeConnection();
 	}

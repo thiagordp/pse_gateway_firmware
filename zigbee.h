@@ -1,3 +1,6 @@
+#ifndef ZIGBEE_H_PSE
+#define ZIGBEE_H_PSE
+
 #include "../include/machine/cortex/nic.h"
 #include "../include/machine/cortex/uart.h"
 #include <alarm.h>
@@ -121,3 +124,4 @@ private:
     Receiver* receiver;
     NIC * nic;
 };
+#endif

@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 //Alterar de acordo com o uso
-#define EPOS    (1)
+#define EPOS_MOTE    (1)
 #define ARDUINO (0)
 
 #if ARDUINO
@@ -15,9 +15,9 @@
 
 #endif
 
-#if EPOS
+#if EPOS_MOTE
 #include "../include/machine/cortex/uart.h"
-
+using namespace EPOS;
 UART uart0(0, 9600, 8, 0, 1);
 #endif
 
@@ -56,7 +56,8 @@ public:
      * @return
      */
     int8_t receive(char *buf, uint16_t len) {
-        for (uint16_t i = 0; i < len; i++) {
+        uint16_t i;
+        for (i = 0; i < len; i++) {
             if (uart0.ready_to_get())
                 buf[i] = uart0.get();
             else

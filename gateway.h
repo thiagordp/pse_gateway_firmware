@@ -1,6 +1,12 @@
+#ifndef GATEWAY_H_PSE
+#define GATEWAY_H_PSE
+
 #include "zigbee.h"
 #include "defines.h"
 #include "../include/machine/cortex/uart.h"
+#include "Wifi.h"
+#include <string.h>
+#include <stdio.h>
 
 using namespace EPOS;
 
@@ -9,9 +15,11 @@ class Gateway
 public:
 	Gateway()
 	{
-		bytesPhoto = 50;
+		this->host = "192.168.1.47";
+		this->port = 8000;		
+		this->bytesPhoto = 50;
 		for (char i = 0; i < 4; i++)
-			dispositives[i] = (Dispositive*) 0;
+			this->dispositives[i] = (Dispositive*) 0;
 	}
 	void TreatZigBee()
 	{
@@ -88,7 +96,7 @@ public:
 
 					//Verificando se é o último pacote
 					if (d[2] == d[3])
-						SendPicture();
+						SendPicture(d[1], "foto", "png");
 
 				}
 				else
@@ -220,15 +228,15 @@ public:
 		strcat(content_request, "\r\n----borda\r\n");
 
 		wifi.httpPostRequest2(host, port, "/send-capture", content_request, response);
-		k
 	}
 
 private:
-	char *host = "192.168.1.14";
-	uint32_t port = 8000;
+	char *host;
+	uint32_t port;
 	ZigBee zigbee;
 	Wifi wifi;
 	Dispositive* dispositives[4];
 	char photo[14400];
 	unsigned char bytesPhoto;
 };
+#endif

@@ -10,7 +10,8 @@ int main()
 	g.RequestAddres(); //Requisistando os endereços dos dispositivos
 	while(1)
 	{
-		//g.TreatZigBee();
+		g.TreatZigBee();
+		g.TreatWiFi();
 	}
 	
 
