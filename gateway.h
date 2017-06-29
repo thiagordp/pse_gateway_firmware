@@ -111,7 +111,7 @@ public:
 		}
 	}
 
-	void RequestAddres()
+	void RequestAddress()
 	{
 		char payload[] =
 		{ ID_TYPE_BROADCAST, CMD_GET_INFO };
@@ -154,7 +154,7 @@ public:
 		wifi.receiveRequest();
 	}
 
-	void SendPicture(char cameraId, char* name, char *extension)
+	void SendPicture(char pCameraId, char* pName, char *pExtension)
 	{
 		char response[100];
 		char content_request[500];
@@ -169,11 +169,11 @@ public:
 		 */
 		strcat(content_request, "----borda\r\nContent-Disposition: form-data; name=\"camera_id\"\r\n\r\n");
 		char tmp[4];
-		sprintf(tmp, "%c", cameraId);
+		sprintf(tmp, "%c", pCameraId);
 		strcat(content_request, tmp);
 
 		strcat(content_request, "\r\n----borda\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\n");
-		strcat(content_request, name);
+		strcat(content_request, pName);
 		strcat(content_request, "\r\n----borda\r\n");
 
 		wifi.httpPostRequest2(host, port, "/send-image", content_request, response);

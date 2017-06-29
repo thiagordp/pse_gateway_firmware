@@ -7,11 +7,11 @@ int main()
 	uart2.put('\n');
 	Gateway g;
 
-	g.RequestAddres(); //Requisistando os endereços dos dispositivos
+	g.RequestAddress(); //Requisistando os endereços dos dispositivos
 	while(1)
 	{
 		g.TreatZigBee();
-		g.TreatWiFi();
+		//g.TreatWiFi();
 	}
 	
 

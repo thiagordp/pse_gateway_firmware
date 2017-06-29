@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <string>
 #include "response_defines.h"
 #include "esp_at_list.h"
 
@@ -12,7 +13,7 @@
  */
 int8_t findStrInBuffer(char *buf, char *str)
 {
-	if (strstr(buf, str) != NULL)
+	if (substr(buf, str) != NULL)
 	{
 		return 1;
 	}

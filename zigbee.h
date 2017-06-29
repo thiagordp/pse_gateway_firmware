@@ -46,7 +46,9 @@ public:
             {
                 Frame* f = b->frame();
                 auto d = f->data<char>();
-                char a = 'a' + d[1];
+                //char a = 'a' + d[0];
+                char a = d[0];
+                uart1.put('>');
                 uart1.put(a);
                 uart1.put('\n'); 
             }
